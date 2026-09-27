@@ -41,12 +41,12 @@ test:
   extends: .default_node
   stage: test
   script:
-    - npm run test -- --coverage
-  artifacts:
-    when: always
-    paths:
-      - coverage/
-    expire_in: 1 week
+    - npm run test
+  #artifacts:
+   # when: always
+   # paths:
+    #  - coverage/
+    #expire_in: 1 week
 
 build:
   extends: .default_node
