@@ -1,0 +1,31 @@
+name: threepod-dev-frontend
+
+services:
+  frontend:
+    image: ${FRONTEND_IMAGE}
+    container_name: threepod-dev-frontend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - threepod-dev
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m
+      - /var/cache/nginx:size=64m
+      - /var/run:size=8m
+    pids_limit: 100
+    mem_limit: 256m
+    cpus: 0.5
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/ >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+networks:
+  threepod-dev:
+    external: true
+    name: threepod-dev
