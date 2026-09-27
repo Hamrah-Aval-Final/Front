@@ -83,7 +83,6 @@ sonarqube:
       -Dsonar.sources=src
       -Dsonar.tests=src
       -Dsonar.test.inclusions=src/**/*.test.js,src/**/*.test.jsx
-      -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
   needs:
     - test
   rules:
