@@ -26,6 +26,8 @@ spec:
         - name: frontend
           image: "{{ .Values.registry.host }}/{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
           imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+          imagePullSecrets:
+            - name: {{ .Values.registry.imagePullSecret }}
           ports:
             - name: http
               containerPort: {{ .Values.frontend.containerPort }}
