@@ -52,7 +52,7 @@ spec:
             - name: REDISCLI_AUTH
               valueFrom:
                 secretKeyRef:
-                  name: redis-secret
+                  name: {{ .Values.existingSecrets.redis }}
                   key: REDIS_PASSWORD
           securityContext:
             allowPrivilegeEscalation: false
