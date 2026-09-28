@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.app.name }}-redis
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.redis.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ .Values.app.name }}
+      component: redis
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app.name }}
+        component: redis
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 1000
+      containers:
+        - name: redis
+          image: "{{ .Values.registry.host }}/{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+          imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+          args:
+            - redis-server
+            - --requirepass
+            - "$(REDIS_PASSWORD)"
+            - --appendonly
+            - "no"
+            - --save
+            - ""
+            - --maxmemory
+            - {{ .Values.redis.maxMemory | quote }}
+            - --maxmemory-policy
+            - {{ .Values.redis.maxMemoryPolicy }}
+          ports:
+            - name: redis
+              containerPort: {{ .Values.redis.containerPort }}
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: REDIS_PASSWORD
+            - name: REDISCLI_AUTH
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: REDIS_PASSWORD
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: {{ .Values.redis.resources.requests.cpu | quote }}
+              memory: {{ .Values.redis.resources.requests.memory | quote }}
+            limits:
+              cpu: {{ .Values.redis.resources.limits.cpu | quote }}
+              memory: {{ .Values.redis.resources.limits.memory | quote }}
+          startupProbe:
+            exec:
+              command:
+                - sh
+                - -ec
+                - test "$(redis-cli ping)" = PONG
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 12
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -ec
+                - test "$(redis-cli ping)" = PONG
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -ec
+                - test "$(redis-cli ping)" = PONG
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.app.name }}-redis
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: {{ .Values.redis.service.type }}
+  selector:
+    app: {{ .Values.app.name }}
+    component: redis
+  ports:
+    - name: redis
+      port: {{ .Values.redis.service.port }}
+      targetPort: redis

@@ -1,0 +1,128 @@
+app:
+  name: task-management-system
+
+registry:
+  host: n.langome.academy:8083
+  imagePullPolicy: IfNotPresent
+
+backend:
+  replicas: 2
+  image:
+    repository: task-management-system/backend
+    tag: latest
+  containerPort: 8000
+  service:
+    type: ClusterIP
+    port: 8000
+  resources:
+    requests:
+      cpu: 600m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+  probes:
+    startup:
+      path: /health/live
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 24
+    readiness:
+      path: /health/ready
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 3
+    liveness:
+      path: /health/live
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+  hpa:
+    minReplicas: 2
+    maxReplicas: 4
+    cpuUtilization: 70
+  vpa:
+    updateMode: Off
+    minMemory: 256Mi
+    maxMemory: 512Mi
+
+frontend:
+  replicas: 2
+  image:
+    repository: task-management-system/frontend
+    tag: latest
+  containerPort: 80
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    requests:
+      cpu: 500m
+      memory: 128Mi
+    limits:
+      cpu: 700m
+      memory: 512Mi
+  probes:
+    readiness:
+      path: /
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      timeoutSeconds: 2
+      failureThreshold: 3
+    liveness:
+      initialDelaySeconds: 15
+      periodSeconds: 10
+      timeoutSeconds: 2
+      failureThreshold: 3
+  hpa:
+    minReplicas: 2
+    maxReplicas: 4
+    cpuUtilization: 70
+  vpa:
+    updateMode: Off
+    minMemory: 128Mi
+    maxMemory: 256Mi
+
+postgres:
+  replicas: 1
+  image:
+    repository: library/postgres
+    tag: 18-alpine
+  containerPort: 5432
+  service:
+    port: 5432
+  auth:
+    database: taskmanagement
+    username: taskmanagement
+    password: threepod123
+  storage:
+    storageClassName: local-path
+    accessMode: ReadWriteOnce
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+redis:
+  replicas: 1
+  image:
+    repository: library/redis
+    tag: 8.4-alpine
+  containerPort: 6379
+  service:
+    type: ClusterIP
+    port: 6379
+  password: threepod123
+  maxMemory: 256mb
+  maxMemoryPolicy: allkeys-lru
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi

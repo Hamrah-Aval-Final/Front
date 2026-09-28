@@ -1,0 +1,45 @@
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: {{ .Values.app.name }}-backend
+  namespace: {{ .Release.Namespace }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.app.name }}-backend
+  updatePolicy:
+    updateMode: {{ .Values.backend.vpa.updateMode | quote }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: backend
+        controlledResources:
+          - memory
+        controlledValues: RequestsOnly
+        minAllowed:
+          memory: {{ .Values.backend.vpa.minMemory }}
+        maxAllowed:
+          memory: {{ .Values.backend.vpa.maxMemory }}
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: {{ .Values.app.name }}-frontend
+  namespace: {{ .Release.Namespace }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.app.name }}-frontend
+  updatePolicy:
+    updateMode: {{ .Values.frontend.vpa.updateMode | quote }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: frontend
+        controlledResources:
+          - memory
+        controlledValues: RequestsOnly
+        minAllowed:
+          memory: {{ .Values.frontend.vpa.minMemory }}
+        maxAllowed:
+          memory: {{ .Values.frontend.vpa.maxMemory }}
