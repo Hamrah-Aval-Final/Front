@@ -28,12 +28,14 @@ spec:
         - name: postgres
           image: "{{ .Values.registry.host }}/{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
           imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+          imagePullSecrets:
+            - name: {{ .Values.registry.imagePullSecret }}
           ports:
             - name: postgres
               containerPort: {{ .Values.postgres.containerPort }}
           envFrom:
             - secretRef:
-                name: postgres-secret
+                name: {{ .Values.existingSecrets.postgres }}
           env:
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
