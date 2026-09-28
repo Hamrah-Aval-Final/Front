@@ -1,15 +1,19 @@
+existingSecrets:
+  postgres: threepod-postgres
+  redis: threepod-redis
 app:
   name: task-management-system
 
 registry:
-  host: n.langome.academy:8083
+  host: r.langome.academy
   imagePullPolicy: IfNotPresent
+  imagePullSecret: nexus-registry
 
 backend:
   replicas: 2
   image:
-    repository: task-management-system/backend
-    tag: latest
+    repository: threepod/backend
+    tag: not-set
   containerPort: 8000
   service:
     type: ClusterIP
@@ -38,10 +42,12 @@ backend:
       timeoutSeconds: 3
       failureThreshold: 3
   hpa:
+    enabled: true
     minReplicas: 2
     maxReplicas: 4
     cpuUtilization: 70
   vpa:
+    enabled: false 
     updateMode: Off
     minMemory: 256Mi
     maxMemory: 512Mi
@@ -49,9 +55,9 @@ backend:
 frontend:
   replicas: 2
   image:
-    repository: task-management-system/frontend
+    repository: threepod/frontend
     tag: latest
-  containerPort: 80
+  containerPort: 8080
   service:
     type: ClusterIP
     port: 80
@@ -75,10 +81,12 @@ frontend:
       timeoutSeconds: 2
       failureThreshold: 3
   hpa:
+    enabled: true
     minReplicas: 2
     maxReplicas: 4
     cpuUtilization: 70
   vpa:
+    enabled: false
     updateMode: Off
     minMemory: 128Mi
     maxMemory: 256Mi
@@ -87,14 +95,13 @@ postgres:
   replicas: 1
   image:
     repository: library/postgres
-    tag: 18-alpine
+    tag: 16-alpine
   containerPort: 5432
   service:
     port: 5432
   auth:
     database: taskmanagement
     username: taskmanagement
-    password: threepod123
   storage:
     storageClassName: local-path
     accessMode: ReadWriteOnce
@@ -111,12 +118,11 @@ redis:
   replicas: 1
   image:
     repository: library/redis
-    tag: 8.4-alpine
+    tag: 7-alpine
   containerPort: 6379
   service:
     type: ClusterIP
     port: 6379
-  password: threepod123
   maxMemory: 256mb
   maxMemoryPolicy: allkeys-lru
   resources:
