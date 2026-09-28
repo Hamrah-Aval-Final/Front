@@ -1,3 +1,4 @@
+{{- if .Values.backend.vpa.enabled }}
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
@@ -20,6 +21,9 @@ spec:
           memory: {{ .Values.backend.vpa.minMemory }}
         maxAllowed:
           memory: {{ .Values.backend.vpa.maxMemory }}
+{{- end }}
+
+{{- if .Values.frontend.vpa.enabled }}
 ---
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
@@ -43,3 +47,4 @@ spec:
           memory: {{ .Values.frontend.vpa.minMemory }}
         maxAllowed:
           memory: {{ .Values.frontend.vpa.maxMemory }}
+{{- end }}
