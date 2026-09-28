@@ -56,7 +56,7 @@ frontend:
   replicas: 2
   image:
     repository: threepod/frontend
-    tag: latest
+    tag: not-set
   containerPort: 8080
   service:
     type: ClusterIP
