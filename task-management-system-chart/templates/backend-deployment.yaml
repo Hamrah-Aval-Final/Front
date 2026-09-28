@@ -23,12 +23,12 @@ spec:
     spec:
       automountServiceAccountToken: false
       terminationGracePeriodSeconds: 30
+      imagePullSecrets:
+        - name: {{ .Values.registry.imagePullSecret }}
       containers:
         - name: backend
           image: "{{ .Values.registry.host }}/{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
           imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
-          imagePullSecrets:
-            - name: {{ .Values.registry.imagePullSecret }}
           ports:
             - name: http
               containerPort: {{ .Values.backend.containerPort }}
