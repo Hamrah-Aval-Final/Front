@@ -1,3 +1,4 @@
+{{- if .Values.backend.hpa.enabled }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -17,6 +18,9 @@ spec:
         target:
           type: Utilization
           averageUtilization: {{ .Values.backend.hpa.cpuUtilization }}
+{{- end }}
+
+{{- if .Values.frontend.hpa.enabled }}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -37,3 +41,4 @@ spec:
         target:
           type: Utilization
           averageUtilization: {{ .Values.frontend.hpa.cpuUtilization }}
+{{- end }}
