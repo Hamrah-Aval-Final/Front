@@ -4,7 +4,9 @@ metadata:
   name: {{ .Values.app.name }}-frontend
   namespace: {{ .Release.Namespace }}
 spec:
+  {{- if not .Values.frontend.hpa.enabled }}
   replicas: {{ .Values.frontend.replicas }}
+  {{- end }}
   minReadySeconds: 5
   strategy:
     type: RollingUpdate
