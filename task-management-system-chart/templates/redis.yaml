@@ -26,6 +26,8 @@ spec:
         - name: redis
           image: "{{ .Values.registry.host }}/{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
           imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+          imagePullSecrets:
+            - name: {{ .Values.registry.imagePullSecret }}
           args:
             - redis-server
             - --requirepass
@@ -45,7 +47,7 @@ spec:
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: redis-secret
+                  name: {{ .Values.existingSecrets.redis }}
                   key: REDIS_PASSWORD
             - name: REDISCLI_AUTH
               valueFrom:
