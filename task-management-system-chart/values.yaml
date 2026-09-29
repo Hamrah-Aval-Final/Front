@@ -94,7 +94,7 @@ frontend:
 postgres:
   replicas: 1
   image:
-    repository: library/postgres
+    repository: postgres
     tag: 16-alpine
   containerPort: 5432
   service:
@@ -117,7 +117,7 @@ postgres:
 redis:
   replicas: 1
   image:
-    repository: library/redis
+    repository: redis
     tag: 7-alpine
   containerPort: 6379
   service:
