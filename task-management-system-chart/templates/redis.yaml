@@ -24,10 +24,8 @@ spec:
         runAsGroup: 1000
       containers:
         - name: redis
-          image: "{{ .Values.registry.host }}/{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+          image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
           imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
-          imagePullSecrets:
-            - name: {{ .Values.registry.imagePullSecret }}
           args:
             - redis-server
             - --requirepass
