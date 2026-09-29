@@ -26,10 +26,8 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: postgres
-          image: "{{ .Values.registry.host }}/{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
           imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
-          imagePullSecrets:
-            - name: {{ .Values.registry.imagePullSecret }}
           ports:
             - name: postgres
               containerPort: {{ .Values.postgres.containerPort }}
