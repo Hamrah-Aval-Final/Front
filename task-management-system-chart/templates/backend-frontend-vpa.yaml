@@ -8,7 +8,7 @@ spec:
   targetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ .Values.app.name }}-backend
+    name: backend
   updatePolicy:
     updateMode: {{ .Values.backend.vpa.updateMode | quote }}
   resourcePolicy:
