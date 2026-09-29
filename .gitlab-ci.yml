@@ -10,6 +10,7 @@ stages:
   - build
   - sonar
   - image
+  - deploy
   - gitops
 
 variables:
