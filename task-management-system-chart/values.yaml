@@ -1,0 +1,134 @@
+existingSecrets:
+  postgres: threepod-postgres
+  redis: threepod-redis
+app:
+  name: task-management-system
+
+registry:
+  host: r.langome.academy
+  imagePullPolicy: IfNotPresent
+  imagePullSecret: nexus-registry
+
+backend:
+  replicas: 2
+  image:
+    repository: threepod/backend
+    tag: not-set
+  containerPort: 8000
+  service:
+    type: ClusterIP
+    port: 8000
+  resources:
+    requests:
+      cpu: 600m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+  probes:
+    startup:
+      path: /health/live
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 24
+    readiness:
+      path: /health/ready
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 3
+    liveness:
+      path: /health/live
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    cpuUtilization: 70
+  vpa:
+    enabled: false 
+    updateMode: Off
+    minMemory: 256Mi
+    maxMemory: 512Mi
+
+frontend:
+  replicas: 2
+  image:
+    repository: threepod/frontend
+    tag: not-set
+  containerPort: 8080
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    requests:
+      cpu: 500m
+      memory: 128Mi
+    limits:
+      cpu: 700m
+      memory: 512Mi
+  probes:
+    readiness:
+      path: /
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      timeoutSeconds: 2
+      failureThreshold: 3
+    liveness:
+      initialDelaySeconds: 15
+      periodSeconds: 10
+      timeoutSeconds: 2
+      failureThreshold: 3
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    cpuUtilization: 70
+  vpa:
+    enabled: false
+    updateMode: Off
+    minMemory: 128Mi
+    maxMemory: 256Mi
+
+postgres:
+  replicas: 1
+  image:
+    repository: postgres
+    tag: 16-alpine
+  containerPort: 5432
+  service:
+    port: 5432
+  auth:
+    database: taskmanagement
+    username: taskmanagement
+  storage:
+    storageClassName: local-path
+    accessMode: ReadWriteOnce
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+redis:
+  replicas: 1
+  image:
+    repository: redis
+    tag: 7-alpine
+  containerPort: 6379
+  service:
+    type: ClusterIP
+    port: 6379
+  maxMemory: 256mb
+  maxMemoryPolicy: allkeys-lru
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
