@@ -84,7 +84,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.app.name }}-backend
+  name: backend
   namespace: {{ .Release.Namespace }}
 spec:
   type: {{ .Values.backend.service.type }}
